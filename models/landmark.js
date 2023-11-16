@@ -32,6 +32,4 @@ const landmarkSchema = new mongoose.Schema({
 
 landmarkSchema.index({ location: '2dsphere' });
 
-const Landmark = mongoose.model("Landmark", landmarkSchema);
-
-module.exports = Landmark;
+module.exports = mongoose.model("Landmark", landmarkSchema);

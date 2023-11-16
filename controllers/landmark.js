@@ -1,9 +1,9 @@
 const express = require("express");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
 const Landmark = require("../models/landmark");
 
-const discover = async (req, res) => {
+exports.discover = async (req, res) => {
     try {
         const { long, lat, propertyType } = req.body;
         
@@ -39,4 +39,3 @@ const discover = async (req, res) => {
     }
 }
 
-module.exports = discover;
