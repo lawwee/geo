@@ -1,13 +1,12 @@
 const express = require("express");
-// const mongoose = require("mongoose");
 
 const Landmark = require("../models/landmark");
 
 exports.discover = async (req, res) => {
     try {
-        const { long, lat, propertyType } = req.body;
+        const { long, lat } = req.query;
         
-        if (!long || lat) {
+        if (!long || !lat) {
             return res.status(400).json({
                 message: 'Longitude and Latitude are required parameters'
             })
@@ -29,7 +28,7 @@ exports.discover = async (req, res) => {
 
         res.json({
             message: "Retreieved successfully",
-            ...nearbyPlaces
+            nearbyPlaces
         })
     } catch (error) {
         console.error("error discovering nearby places", error.message);
