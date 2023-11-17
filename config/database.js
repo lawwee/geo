@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Function to connect to database
 const connectDB = async () => {
     try {
         await mongoose.connect(`mongodb://localhost:27017/geo`)
@@ -10,4 +11,5 @@ const connectDB = async () => {
     }
 }
 
+// Export function
 module.exports = connectDB;

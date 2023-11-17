@@ -1,17 +1,25 @@
+// Import the express package
 const express = require("express");
+
+// Import the MongoDB database configuration setting
 const connectDB = require("./config/database");
 
+// Create an instance of the express application
 const app = express();
 
+// Import route and model
 const landmark_routes = require("./routes/landmark");
 const Landmark = require("./models/landmark");
 
 const port = 5000;
 
+// Initialize Dataabse configuration
 connectDB();
 
+// Variable for stopping infinite execution of samplePlaces
 let sampleDataInitialized = false;
 
+// Array of sample data to be stored in database
 const samplePlaces = [
     {
         name: "Item 7",
@@ -45,6 +53,7 @@ const samplePlaces = [
     }
 ]
 
+// Function to stop infinite execution on sample places
 const initializeSampleData = async () => {
     try {
         await Landmark.deleteMany();
@@ -60,8 +69,10 @@ if (!sampleDataInitialized) {
     initializeSampleData();
 }
 
+// Mount the middleware
 app.use("/app", landmark_routes);
 
+// Start the server
 app.listen(port, () => {
     console.log(`Server is now running on port ${port}`)
 })
