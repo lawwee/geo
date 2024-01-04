@@ -1,63 +1,61 @@
-// Import the express package
-const express = require("express");
-
 // Import the MongoDB database configuration setting
-const connectDB = require("./config/database");
+require("./database.config");
 
-// Create an instance of the express application
-const app = express();
-
-// Import route and model
-const landmark_routes = require("./routes/landmark");
-const Landmark = require("./models/landmark");
-
-const port = 5000;
-
-// Initialize Dataabse configuration
-connectDB();
+// Import model
+const Place = require("./place.model");
 
 // Variable for stopping infinite execution of samplePlaces
 let sampleDataInitialized = false;
 
 // Array of sample data to be stored in database
-const samplePlaces = [
+const places = [
     {
-        name: "Item 7",
-        landmarkType: "Restaurant",
-        location: {
-            type: "Point",
-            coordinates: [8.475390409191485, 4.595045733485099],
-            city: "Ilorin",
-            state: "Kwara"
-        }
+      name: "Pizza Hut",
+      placeType: "Restaurant",
+      location: {
+        city: "Lagos",
+        coordinates: [3.3958, 6.4531]
+      }
     },
     {
-        name: "Central Clinic",
-        landmarkType: "Hospital",
-        location: {
-            type: "Point",
-            coordinates: [8.472370261847576, 4.592029040612362],
-            city: "Ikeja",
-            state: "Lagos"
-        }
+      name: "Lagoon Hospital",
+      placeType: "Hospital",
+      location: {
+        city: "Lagos",
+        coordinates: [3.4215, 6.4413]
+      }
     },
     {
-        name: "Buffer Gym",
-        landmarkType: "Gym",
-        location: {
-            type: "Point",
-            coordinates: [8.473716595521099, 4.595597567547186],
-            city: "Ibadan",
-            state: "Oyo"
-        }
+      name: "Bodyline Fitness",
+      placeType: "Gym",
+      location: {
+        city: "Lagos",
+        coordinates: [3.4156, 6.4326]
+      }
+    },
+    {
+      name: "University of Lagos",
+      placeType: "School",
+      location: {
+        city: "Lagos",
+        coordinates: [3.4064, 6.5196]
+      }
+    },
+    {
+      name: "Ikeja City Mall",
+      placeType: "Mall",
+      location: {
+        city: "Lagos",
+        coordinates: [3.3569, 6.6018]
+      }
     }
-]
+  ];
 
 // Function to stop infinite execution on sample places
 const initializeSampleData = async () => {
     try {
-        await Landmark.deleteMany();
-        await Landmark.create(samplePlaces);
+        await Place.deleteMany();
+        await Place.create(places);
         console.log('sample data initialized');
         sampleDataInitialized = true;
     } catch (error) {
@@ -69,10 +67,51 @@ if (!sampleDataInitialized) {
     initializeSampleData();
 }
 
-// Mount the middleware
-app.use("/app", landmark_routes);
+async function discover() {
+    try {
+        // Mongoose query for finding all places within 10000 metres of point
+        const query = {
+            location: {
+                $nearSphere: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [3.4, 6.5]
+                    },
+                    $maxDistance: 10000
+                }
+            }
+        }
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is now running on port ${port}`)
-})
+        const nearbyPlaces = await Place.find(query);
+        console.log("Here are the places close to you: ", nearbyPlaces);
+    } catch (error) {
+        console.error("error discovering nearby places", error.message);
+    }
+}
+
+async function rediscover() {
+    try {
+        // Mongoose query for finding all places within a 5 kilometer radius of point
+        const query = {
+            location: {
+                $geoWithin: {
+                    $centerSphere: [
+                        [3.4, 6.5],
+                        5 / 6378.1
+                    ]
+                }
+            }
+        }
+
+        const nearbyPlaces = await Place.find(query);
+        console.log("Here are the places within a 5 kilometer radius: ", nearbyPlaces);
+    } catch (error) {
+        console.error("error discovering nearby places", error.message);
+    }
+}
+
+discover()
+rediscover()
+
+
+// Use "npm start" to run the code
